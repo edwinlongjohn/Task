@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/',  [WelcomeController::class, 'index'])->name('welcome');
+Route::get('/add-task',  [WelcomeController::class, 'addTask'])->name('add-task');
+Route::get('/single-task/{id}',  [WelcomeController::class, 'singleTask'])->name('task');
+Route::get('/edit-task/{id}',  [WelcomeController::class, 'editTask'])->name('edit-task');
+Route::get('/tasks',  [WelcomeController::class, 'allTasks'])->name('tasks');
