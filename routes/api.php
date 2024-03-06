@@ -22,6 +22,4 @@ Route::put('/edit-task/{id}', [TaskController::class, 'update']);
 Route::delete('/delete-task/{id}', [TaskController::class, 'destroy']);
 Route::get('/mark-task/{id}', [TaskController::class, 'mark']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+

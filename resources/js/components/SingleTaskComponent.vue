@@ -42,7 +42,7 @@
                                         </div>
                                     </div>
 
-                                   
+
                                     <!-- <div class="post-footer__comment">
 
 
@@ -80,19 +80,38 @@
 
 <script>
     export default {
-
+        //tasks as a property that is loaded from the database.
         props: {
             task: "",
         },
 
         methods: {
+            //route to edit task
             navigateToRoute(id) {
                 window.location.href = '/edit-task/' + id;
             },
-
+            //delete task method
             deleteTask(id) {
-                this.loading = true;
-                axios.delete(`/api/delete-task/${id}`)
+        
+                Swal.fire({
+                        title: "Please Confirm you want to delete this",
+
+                        icon: "warning",
+                        //showDenyButton: true,
+                        showDenyButton: true,
+                        confirmButtonText: "proceed",
+                        denyButtonText: "cancel",
+
+                        denyButtonColor: "#d33",
+                        backdrop: `
+                    rgba(0,0,123,0.4)
+
+                    `,
+
+                    })
+                    .then((result) => {
+                        if (result.isConfirmed) {
+                            axios.delete(`/api/delete-task/${id}`)
                     .then((response) => {
                         if (response.data.success) {
                             swal
@@ -144,6 +163,18 @@
                             }
                         });;
                     })
+                            // Disable the submit button
+
+
+                        } else if (Swal.DismissReason.backdrop) {
+                            Swal.fire("Delete Cancelled", "", "info");
+
+                        } else if (result.isDenied) {
+
+                            Swal.fire("Purchase Cancelled", "", "info");
+                        }
+                    });
+
             },
 
             markTask(id) {

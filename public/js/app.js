@@ -21451,7 +21451,8 @@ __webpack_require__.r(__webpack_exports__);
     return {
       title: "",
       description: "",
-      loading: false
+      loading: false,
+      errors: []
     };
   },
   methods: {
@@ -21460,12 +21461,12 @@ __webpack_require__.r(__webpack_exports__);
       if (!this.title || !this.description) {
         Swal.fire({
           title: "Fill required Fields",
-          backdrop: "\n                    rgba(0,0,123,0.4)\n\n                    ",
+          backdrop: "\n                                rgba(0,0,123,0.4)\n\n                                ",
           showClass: {
-            popup: "\n                                animate__animated\n                                animate__fadeInUp\n                                animate__faster\n                                    "
+            popup: "\n                                            animate__animated\n                                            animate__fadeInUp\n                                            animate__faster\n                                                "
           },
           hideClass: {
-            popup: "\n                                animate__animated\n                                animate__fadeOutDown\n                                animate__faster\n                                "
+            popup: "\n                                            animate__animated\n                                            animate__fadeOutDown\n                                            animate__faster\n                                            "
           },
           text: "",
           icon: "warning"
@@ -21490,11 +21491,19 @@ __webpack_require__.r(__webpack_exports__);
               window.location.href = "/";
             }
           });
+        }
+      })["catch"](function (error) {
+        if (error.response.status === 422) {
+          _this.loading = false;
+          // Handle validation errors
+          _this.errors = Object.values(error.response.data.errors).flat();
         } else {
+          //just returm alert
           swal.fire({
             title: "Ooops!",
             text: "Something went wrong try again",
             icon: "error",
+            button: "OK",
             backdrop: "\n                    rgba(0,0,123,0.4)\n\n                    "
           }).then(function (result) {
             if (result.isConfirmed) {
@@ -21502,22 +21511,7 @@ __webpack_require__.r(__webpack_exports__);
               window.location.reload();
             }
           });
-          ;
         }
-      })["catch"](function (error) {
-        swal.fire({
-          title: "Ooops!",
-          text: "Something went wrong try again",
-          icon: "error",
-          button: "OK",
-          backdrop: "\n                    rgba(0,0,123,0.4)\n\n                    "
-        }).then(function (result) {
-          if (result.isConfirmed) {
-            _this.location = false;
-            window.location.reload();
-          }
-        });
-        ;
       });
     }
   }
@@ -21669,57 +21663,77 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  //tasks as a property that is loaded from the database.
   props: {
     task: ""
   },
   methods: {
+    //route to edit task
     navigateToRoute: function navigateToRoute(id) {
       window.location.href = '/edit-task/' + id;
     },
+    //delete task method
     deleteTask: function deleteTask(id) {
       var _this = this;
-      this.loading = true;
-      axios["delete"]("/api/delete-task/".concat(id)).then(function (response) {
-        if (response.data.success) {
-          swal.fire({
-            title: "Good job!",
-            text: response.data.message,
-            icon: "success",
-            backdrop: "\n                    rgba(0,0,123,0.4)\n                    "
-          }).then(function (result) {
-            if (result.isConfirmed) {
-              _this.location = false;
-              window.location.href = '/';
+      Swal.fire({
+        title: "Please Confirm you want to delete this",
+        icon: "warning",
+        //showDenyButton: true,
+        showDenyButton: true,
+        confirmButtonText: "proceed",
+        denyButtonText: "cancel",
+        denyButtonColor: "#d33",
+        backdrop: "\n                    rgba(0,0,123,0.4)\n\n                    "
+      }).then(function (result) {
+        if (result.isConfirmed) {
+          axios["delete"]("/api/delete-task/".concat(id)).then(function (response) {
+            if (response.data.success) {
+              swal.fire({
+                title: "Good job!",
+                text: response.data.message,
+                icon: "success",
+                backdrop: "\n                    rgba(0,0,123,0.4)\n                    "
+              }).then(function (result) {
+                if (result.isConfirmed) {
+                  _this.location = false;
+                  window.location.href = '/';
+                }
+              });
+            } else {
+              swal.fire({
+                title: "Ooops!",
+                text: "Something went wrong try again",
+                icon: "error",
+                backdrop: "\n                    rgba(0,0,123,0.4)\n\n                    "
+              }).then(function (result) {
+                if (result.isConfirmed) {
+                  _this.location = false;
+                  window.location.reload();
+                }
+              });
+              ;
             }
+          })["catch"](function (error) {
+            swal.fire({
+              title: "Ooops!",
+              text: "Something went wrong try again",
+              icon: "error",
+              button: "OK",
+              backdrop: "\n                    rgba(0,0,123,0.4)\n\n                    "
+            }).then(function (result) {
+              if (result.isConfirmed) {
+                _this.location = false;
+                window.location.reload();
+              }
+            });
+            ;
           });
-        } else {
-          swal.fire({
-            title: "Ooops!",
-            text: "Something went wrong try again",
-            icon: "error",
-            backdrop: "\n                    rgba(0,0,123,0.4)\n\n                    "
-          }).then(function (result) {
-            if (result.isConfirmed) {
-              _this.location = false;
-              window.location.reload();
-            }
-          });
-          ;
+          // Disable the submit button
+        } else if (Swal.DismissReason.backdrop) {
+          Swal.fire("Delete Cancelled", "", "info");
+        } else if (result.isDenied) {
+          Swal.fire("Purchase Cancelled", "", "info");
         }
-      })["catch"](function (error) {
-        swal.fire({
-          title: "Ooops!",
-          text: "Something went wrong try again",
-          icon: "error",
-          button: "OK",
-          backdrop: "\n                    rgba(0,0,123,0.4)\n\n                    "
-        }).then(function (result) {
-          if (result.isConfirmed) {
-            _this.location = false;
-            window.location.reload();
-          }
-        });
-        ;
       });
     },
     markTask: function markTask(id) {
@@ -21851,10 +21865,28 @@ var _hoisted_8 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementV
   "class": "contact-title"
 }, "Create Task", -1 /* HOISTED */);
 var _hoisted_9 = {
+  key: 0,
+  "class": "mt-4"
+};
+var _hoisted_10 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("h3", {
+  "class": "text-danger"
+}, "Error(s):", -1 /* HOISTED */);
+var _hoisted_11 = /*#__PURE__*/(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", {
+  type: "button",
+  "class": "btn-close",
+  "data-bs-dismiss": "alert",
+  "aria-label": "Close"
+}, null, -1 /* HOISTED */);
+var _hoisted_12 = {
   "class": "btn -normal"
 };
 function render(_ctx, _cache, $props, $setup, $data, $options) {
-  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [_hoisted_3, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_6, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_7, [_hoisted_8, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("form", {
+  return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_1, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_2, [_hoisted_3, (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_4, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_5, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_6, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("div", _hoisted_7, [_hoisted_8, $data.errors.length ? ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", _hoisted_9, [_hoisted_10, ((0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)(vue__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, (0,vue__WEBPACK_IMPORTED_MODULE_0__.renderList)($data.errors, function (error) {
+    return (0,vue__WEBPACK_IMPORTED_MODULE_0__.openBlock)(), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementBlock)("div", {
+      "class": "alert alert-danger text-dark mt-3 alert-dismissible fade show",
+      key: error
+    }, [(0,vue__WEBPACK_IMPORTED_MODULE_0__.createTextVNode)((0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)(error) + " ", 1 /* TEXT */), _hoisted_11]);
+  }), 128 /* KEYED_FRAGMENT */))])) : (0,vue__WEBPACK_IMPORTED_MODULE_0__.createCommentVNode)("v-if", true), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("form", {
     onSubmit: _cache[2] || (_cache[2] = (0,vue__WEBPACK_IMPORTED_MODULE_0__.withModifiers)(function () {
       return $options.createTask && $options.createTask.apply($options, arguments);
     }, ["prevent"]))
@@ -21873,7 +21905,7 @@ function render(_ctx, _cache, $props, $setup, $data, $options) {
       return $data.description = $event;
     }),
     placeholder: "Message"
-  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.description]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", _hoisted_9, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($data.loading ? "loading..." : "Create"), 1 /* TEXT */)], 32 /* NEED_HYDRATION */)])])])])])]);
+  }, null, 512 /* NEED_PATCH */), [[vue__WEBPACK_IMPORTED_MODULE_0__.vModelText, $data.description]]), (0,vue__WEBPACK_IMPORTED_MODULE_0__.createElementVNode)("button", _hoisted_12, (0,vue__WEBPACK_IMPORTED_MODULE_0__.toDisplayString)($data.loading ? "loading..." : "Create"), 1 /* TEXT */)], 32 /* NEED_HYDRATION */)])])])])])]);
 }
 
 /***/ }),

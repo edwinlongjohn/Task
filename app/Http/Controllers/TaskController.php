@@ -15,8 +15,8 @@ class TaskController extends Controller
             return [
                 'id' => $task->id,
                 'title' => $task->title,
-                'description' => $task->description, // Example: Convert description to uppercase
-                'created' => $task->created_at->format('D m Y'),
+                'description' => $task->description,
+                'created' => $task->created_at->format('D m Y'), //format created at
                 'completed' => $task->completed,
             ];
         });
@@ -25,8 +25,8 @@ class TaskController extends Controller
             return [
                 'id' => $task->id,
                 'title' => $task->title,
-                'description' => $task->description, // Example: Convert description to uppercase
-                'created' => $task->created_at->format('D m Y'),
+                'description' => $task->description,
+                'created' => $task->created_at->format('D m Y'), //format created at
                 'completed' => $task->completed,
             ];
         });
@@ -61,16 +61,13 @@ class TaskController extends Controller
 
         return response()->json([
             'status' => true,
-            'task' => $task],
+            'task' => $task
+        ],
             201);
     }
 
     public function update(Request $request, $id)
     {
-        $request->validate([
-            'title' => 'required|string',
-            'completed' => 'boolean',
-        ]);
 
 
         $task = Task::find($id);
@@ -78,13 +75,14 @@ class TaskController extends Controller
         if (!$task) {
             return response()->json([
                 'status' => false,
-                'error' => 'Task not found'], 404);
+                'error' => 'Task not found'
+            ], 404);
         }
 
         $task->update($request->all());
 
         return response()->json([
-             'status' => true,
+            'status' => true,
             'task' => $task
         ], 201);
     }
@@ -116,7 +114,8 @@ class TaskController extends Controller
         if (!$task) {
             return response()->json([
                 'success' => false,
-                'error' => 'Task not found'], 404);
+                'error' => 'Task not found'],
+                 404);
         }
 
         $task->completed = true;
